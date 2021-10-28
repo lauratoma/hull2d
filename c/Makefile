@@ -13,7 +13,8 @@ CFLAGS+= -Wall
 
 ifeq ($(PLATFORM),Darwin)
 ## Mac OS X
-CFLAGS += -m64 -isystem/usr/local/include -Wno-deprecated
+CFLAGS += -m64  -Wno-deprecated
+INCLUDEPATH=-I/system/usr/local/include
 LDFLAGS+= -m64 -lc -framework AGL -framework OpenGL -framework GLUT -framework Foundation
 else
 ## Linux
@@ -35,13 +36,13 @@ viewPoints: viewPoints.o geom.o rtimer.o
 	$(CC) -o $@ viewPoints.o geom.o rtimer.o $(LDFLAGS)
 
 viewPoints.o: viewPoints.c  geom.h rtimer.h
-	$(CC) -c $(INCLUDEPATH) $(CFLAGS)  viewPoints.c  -o $@
+	$(CC) -c $(CFLAGS)  viewPoints.c  -o $@
 
 geom.o: geom.c geom.h 
-	$(CC) -c $(INCLUDEPATH) $(CFLAGS)  geom.c -o $@
+	$(CC) -c $(CFLAGS)  geom.c -o $@
 
 rtimer.o: rtimer.h rtimer.c
-	$(CC) -c $(INCLUDEPATH) $(CFLAGS) rtimer.c -o $@
+	$(CC) -c $(CFLAGS) rtimer.c -o $@
 clean::	
 	rm *.o
 	rm viewPoints
