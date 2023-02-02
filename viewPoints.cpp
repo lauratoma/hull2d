@@ -129,7 +129,7 @@ void initialize_points_cross(vector<point2d>&pts, int n) ;
 
 
 /* ****************************** */
-/* Initializes pts with n points on a circle.  The points are in the
+/* Initializes pts with n points on two circles.  The points are in the
    range (0,0) to (WINSIZE,WINSIZE).
 */ 
 void initialize_points_circle(vector<point2d>& pts, int n) {
@@ -138,6 +138,7 @@ void initialize_points_circle(vector<point2d>& pts, int n) {
   //clear the vector just to be safe 
   pts.clear(); 
 
+  n = n/2; //we'll generaate two circles, n/2 points each
   double  step = 2* M_PI/n; 
   int radius = 100; 
 
@@ -147,6 +148,14 @@ void initialize_points_circle(vector<point2d>& pts, int n) {
     p.y = WINDOWSIZE/2+ radius*sin(i*step); 
     pts.push_back(p); 
   }
+
+  radius /= 2; 
+  for (int i=0; i<n; i++) {
+    p.x = WINDOWSIZE/2+ radius*cos(i*step); 
+    p.y = WINDOWSIZE/2+ radius*sin(i*step); 
+    pts.push_back(p); 
+  }
+  
 }
 
 
@@ -256,11 +265,11 @@ int main(int argc, char** argv) {
   printf("you entered n=%d\n", NPOINTS);
   assert(NPOINTS >0); 
 
-  //initialize the points 
-  initialize_points_cross(points, NPOINTS);
+  //populate the points 
+  initialize_points_random(points, NPOINTS);
   //print_vector("points:", points);
 
-  //compute the convex hull and store it in global variable "hull"
+  //compute the convex hull 
   Rtimer rt1; 
   rt_start(rt1); 
   graham_scan(points, hull); 
@@ -373,7 +382,7 @@ void draw_hull(vector<point2d> hull){
     int i; 
     for (i=0; i< hull.size()-1; i++) {
       
-      //draw a line fromcrt to next 
+      //draw a line from  i to i+1
       glBegin(GL_LINES);
       glVertex2f(hull[i].x, hull[i].y); 
       glVertex2f(hull[i+1].x, hull[i+1].y); 
@@ -392,14 +401,16 @@ void draw_hull(vector<point2d> hull){
 
 
 /* ****************************** */
+/* Handler for key presses. called whenever a key is spressed */
 void keypress(unsigned char key, int x, int y) {
   switch(key) {
   case 'q':
     exit(0);
     break;
 
-  case 'i': 
-    //change points initializer 
+  case 'i':
+    //when the user presses 'i', we want to re-initialize the points and
+    //recompute the hull
     POINT_INIT_MODE = (POINT_INIT_MODE+1) % NB_INIT_CHOICES; 
     switch (POINT_INIT_MODE) {
     case 0: 
@@ -415,10 +426,10 @@ void keypress(unsigned char key, int x, int y) {
       initialize_points_random(points, NPOINTS); 
       break; 
     } //switch 
-    //note: we change global array points, so we must recompute the hull
+    //we changed the points, so we need to recompute the hull
     graham_scan(points, hull); 
 
-    //redraw
+    //we changed stuff, so we need to tell GL to redraw
     glutPostRedisplay();
 
   } //switch (key)

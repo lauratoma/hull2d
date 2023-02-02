@@ -43,7 +43,10 @@ geom.o: geom.cpp geom.h
 
 rtimer.o: rtimer.h rtimer.c
 	$(CC) -c $(CFLAGS)  rtimer.c -o $@
-clean::	
+
+
+
+clean:
 	rm *.o
 	rm viewPoints
 
