@@ -1,17 +1,11 @@
-/* viewpoints.c 
+/* viewpoints.cpp, Laura Toma
    
-   Laura Toma
+   What it does: Draws a set of points in the default 2D projection.
+   Includes a tentative function for printing and drawing a list of
+   points (assumed to be a convex hull).
    
-   What it does:  
-   
-   Draws a set of points in the default 2D projection.  
-   
-   Includes a tentative function for printing and drawing a list of-
-   points (assumed to be a convex hull). These functions were not 
-   debugged so use them at your own risk.
-   
-   Feel free to change this code as you need.
-   
+   This code is provided as a startup for your 2d hull.  Change it as
+   needed to work with your project.
 */
 
 #include "geom.h"
@@ -21,6 +15,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <assert.h>
+#include <strings.h>
 
 //to compile on both apple and unix platform
 #ifdef __APPLE__
@@ -67,24 +62,29 @@ GLfloat Wheat[3] = { 0.847059 , 0.847059, 0.74902};
 
 
 /* global variables */
+
+//window size for the graphics window
 const int WINDOWSIZE = 500; 
 
+
+int n;  //desired number of points, entered by the user on the command
+	//line
+
 //the array of n points
+//note: needs to be global in order to be rendered
+vector<point2d>  points;
+
+//the convex hull 
 //needs to be global in order to be rendered
-vector<point2D>  points;
-
-int n;  //desired number of points 
-
-//the convex hull, stored as a list. 
-//needs to be global in order to be rendered
-vector<point2D>  hull; 
+vector<point2d>  hull; 
 
 
-
-//currently there are 4 different ways to initialize points. 
-//The user can cycle through them by pressing 'i'
+/* currently there are 4 different ways to initialize points.  The
+   user can cycle through them by pressing 'i'. Check out the display()
+   function to see how that's implemented.
+*/
 int NB_INIT_CHOICES = 4; 
-int  POINT_INIT_MODE = 0; 
+int  POINT_INIT_MODE = 0; //the first inititalizer
 
 
 
@@ -92,29 +92,32 @@ int  POINT_INIT_MODE = 0;
 
 /********************************************************************/
 /* forward declarations of functions */
-void display(void);
-void keypress(unsigned char key, int x, int y);
+
+//print label, then the vector 
+void print_vector(const char* label, vector<point2d> p); 
+
+
 
 /* render the array of points stored in global variable points.
    Each point is drawn as a small square.  */
-void draw_points(); 
+void draw_points(vector<point2d> pts); 
 
 /* Render the hull; the points on the hull are expected to be in
-   boundary order (either ccw or cw). To render the hull we'll draw
-   lines between consecutive points */
-  void draw_hull(); 
+   boundary order (either ccw or cw), otherwise it will look
+   zig-zaagged.  
+*/
+  void draw_hull(vector<point2d> hull); 
 
-/* print the array of n points stored in global variable points[]*/
-void print_points(vector<point2D> points); 
 
-//print the list of points in global variable  hull 
-void print_hull (vector<point2D> hull);
+void display(void);
+void keypress(unsigned char key, int x, int y);
 
-/** initializer function */
-void initialize_points_circle(); 
-void initialize_points_horizontal_line();
-void initialize_points_random() ;
-void initialize_points_star() ;
+// initializer function
+void initialize_points_circle(vector<point2d>& pts); 
+void initialize_points_horizontal_line(vector<point2d>&pts);
+void initialize_points_random(vector<point2d>&pts) ;
+void initialize_points_cross(vector<point2d>&pts) ;
+
 //you'll add more 
 
 
@@ -124,78 +127,78 @@ void initialize_points_star() ;
 
 
 
-//assumes global array points  is allocated to hold n points. 
-//this functions initializes points[] with  n points on a circle. 
-//The points are in the range (0,0) to (WINSIZE,WINSIZE).
-void initialize_points_circle() {
+/* Initializes pts with n points on a circle.  The points are in the
+   range (0,0) to (WINSIZE,WINSIZE).
+*/ 
+void initialize_points_circle(vector<point2d>& pts) {
 
-  printf("initialize points circle\n"); 
+  printf("\ninitialize points circle\n"); 
   //clear the vector just to be safe 
-  points.clear(); 
+  pts.clear(); 
 
   double  step = 2* M_PI/n; 
   int rad = 100; 
 
   int i; 
-  point2D p; 
+  point2d p; 
   for (i=0; i<n; i++) {
     p.x = WINDOWSIZE/2+ rad*cos(i*step); 
     p.y = WINDOWSIZE/2+ rad*sin(i*step); 
-    points.push_back(p); 
+    pts.push_back(p); 
   }
 }
 
 
-//assumes global array points is allocated to hold n points. 
-//this functions initializes points[] with  n points on a line 
-//The points are in the range (0,0) to (WINSIZE,WINSIZE)
-void initialize_points_horizontal_line() {
+/* Initializes pts with n points on a line.  The points are in the
+   range (0,0) to (WINSIZE,WINSIZE).
+*/ 
+void initialize_points_horizontal_line(vector<point2d>& pts) {
 
-  printf("initialize points line\n"); 
+  printf("\ninitialize points line\n"); 
   //clear the vector just to be safe 
-  points.clear(); 
+  pts.clear(); 
   
   int i; 
-  point2D p; 
+  point2d p; 
   for (i=0; i<n; i++) {
     p.x = (int)(.3*WINDOWSIZE)/2 + random() % ((int)(.7*WINDOWSIZE)); 
     p.y =  WINDOWSIZE/2; 
-    points.push_back(p); 
+    pts.push_back(p); 
   }
 }
 
 
 
-//assumes global array points is allocated to hold n points. 
-//this functions initializes points[] with  n random points  
-//The points are in the range (0,0) to (WINSIZE,WINSIZE)
-void initialize_points_random() {
+/* Initializes pts with n random points.  The points are in the
+   range (0,0) to (WINSIZE,WINSIZE).
+*/ 
+void initialize_points_random(vector<point2d>& pts) {
 
-   printf("initialize points random\n"); 
+   printf("\ninitialize points random\n"); 
   //clear the vector just to be safe 
-  points.clear(); 
+  pts.clear(); 
 
   int i; 
-  point2D p; 
+  point2d p; 
   for (i=0; i<n; i++) {
     p.x = (int)(.3*WINDOWSIZE)/2 + random() % ((int)(.7*WINDOWSIZE)); 
     p.y =  (int)(.3*WINDOWSIZE)/2 + random() % ((int)(.7*WINDOWSIZE));
-    points.push_back(p); 
+    pts.push_back(p); 
   }
 }
 
 
-//assumes global array points is allocated to hold n points. 
-//this functions initializes points[] with  n points  that look like a star
-//The points are in the range (0,0) to (WINSIZE,WINSIZE)
-void initialize_points_star() {
+/* Initializes pts with n points on a cross-like shape.  The points are
+   in the range (0,0) to (WINSIZE,WINSIZE).
+*/ 
+void initialize_points_cross(vector<point2d>& pts) {
   
-  printf("initialize points star\n"); 
+  printf("\ninitialize points cross\n"); 
   //clear the vector just to be safe 
-  points.clear(); 
+  pts.clear(); 
   
   int i; 
-  point2D p; 
+  point2d p; 
   for (i=0; i<n; i++) {
     if (i%2 == 0) {
       
@@ -210,7 +213,7 @@ void initialize_points_star() {
       p.y =  (int)(.3*WINDOWSIZE)/2 + random() % ((int)(.7*WINDOWSIZE));
     }
    
-    points.push_back(p); 
+    pts.push_back(p); 
     
   }//for i
 
@@ -218,27 +221,21 @@ void initialize_points_star() {
 
 
 
+
 /* ****************************** */
-/* print the array of points */
-void print_points(vector<point2D> points) {
+/* print the vector of points */
+void print_vector(const char* label, vector<point2d> points) {
   
   int i; 
-  printf("points: ");
+  printf("%s: ", label);
   for (i=0; i< points.size(); i++) {
     printf("[%3d,%3d] ", points[i].x, points[i].y);
   }
   printf("\n");
-  fflush(stdout);  //flush stdout, weird sync happens when using gl thread
+  fflush(stdout);  //weird sync happens when using gl thread
 }
 
-/* ****************************** */
-//print the  hull; 
-void print_hull (vector<point2D> hull) {
-  
-  printf("hull: ");
-  //...
-  printf("\n");
- }
+
 
 
 
@@ -255,15 +252,16 @@ int main(int argc, char** argv) {
   assert(n >0); 
 
   //initialize the points 
-  initialize_points_star();
-  //print_points(points);
+  initialize_points_cross(points);
+  //print_vector("points:", points);
 
   //compute the convex hull and store it in global variable "hull"
   Rtimer rt1; 
   rt_start(rt1); 
-  hull = graham_scan(points); 
+  graham_scan(points, hull); 
   rt_stop(rt1); 
-  print_hull(hull); 
+  print_vector("hull:", hull);
+  
   //print the timing 
   char buf [1024]; 
   rt_sprint(buf,rt1);
@@ -318,8 +316,8 @@ void display(void) {
   //first translate the points to [-WINDOWSIZE/2, WINDOWSIZE/2]
   glTranslatef(-WINDOWSIZE/2, -WINDOWSIZE/2, 0); 
  
-  draw_points();
-  draw_hull(); 
+  draw_points(points);
+  draw_hull(hull); 
 
   /* execute the drawing commands */
   glFlush();
@@ -329,10 +327,9 @@ void display(void) {
 
 
 /* ****************************** */
-/* draw the array of points stored in global variable points[] 
-   each point is drawn as a small square   
+/* draw the points. each point is drawn as a small square
 */
-void draw_points(){
+void draw_points(vector<point2d> points){
 
   const int R= 1;
   //draw polygon filled or line 
@@ -359,13 +356,14 @@ void draw_points(){
 
 
 /* ****************************** */
-/* Render the hull; the points on the hull are expected to be in
-   boundary order (either ccw or cw). To render the hull we'll draw
-   lines between consecutive points */
-void draw_hull(){
+/* Draaaw the hull; the points on the hull are expected to be in
+   boundary order (either ccw or cw) or else it will look
+   zig-zaagged. To render the hull we'll draw lines between
+   consecutive points */
+void draw_hull(vector<point2d> hull){
 
   //set color 
-  glColor3fv(red);   
+  glColor3fv(red);   //this should be a constant
   
   if (hull.size() >0) {
     int i; 
@@ -378,10 +376,12 @@ void draw_hull(){
       glEnd();
     }
     
-    //draw a line from the last point to the first point 
-    //fill in code here 
-
-    
+    //draw a line from the last point to the first point
+    i =  hull.size()-1; 
+    glBegin(GL_LINES);
+    glVertex2f(hull[i].x, hull[i].y); 
+    glVertex2f(hull[0].x, hull[0].y); 
+    glEnd();
   }//if (hull not empty)
 }
 
@@ -399,20 +399,20 @@ void keypress(unsigned char key, int x, int y) {
     POINT_INIT_MODE = (POINT_INIT_MODE+1) % NB_INIT_CHOICES; 
     switch (POINT_INIT_MODE) {
     case 0: 
-      initialize_points_circle(); 
+      initialize_points_circle(points); 
       break; 
     case 1: 
-      initialize_points_star(); 
+      initialize_points_cross(points); 
       break; 
     case 2: 
-      initialize_points_horizontal_line(); 
+      initialize_points_horizontal_line(points); 
       break; 
     case 3: 
-      initialize_points_random(); 
+      initialize_points_random(points); 
       break; 
     } //switch 
     //note: we change global array points, so we must recompute the hull
-     hull = graham_scan(points); 
+    graham_scan(points, hull); 
 
     //redraw
     glutPostRedisplay();
