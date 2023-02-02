@@ -63,14 +63,10 @@ GLfloat Wheat[3] = { 0.847059 , 0.847059, 0.74902};
 
 /* global variables */
 
-//window size for the graphics window
-const int WINDOWSIZE = 500; 
+//desired number of points, entered by the user on the command line
+int NPOINTS;
 
-
-int n;  //desired number of points, entered by the user on the command
-	//line
-
-//the array of n points
+//the vector of points
 //note: needs to be global in order to be rendered
 vector<point2d>  points;
 
@@ -78,6 +74,10 @@ vector<point2d>  points;
 //needs to be global in order to be rendered
 vector<point2d>  hull; 
 
+
+
+//window size for the graphics window
+const int WINDOWSIZE = 500; 
 
 /* currently there are 4 different ways to initialize points.  The
    user can cycle through them by pressing 'i'. Check out the display()
@@ -113,10 +113,10 @@ void display(void);
 void keypress(unsigned char key, int x, int y);
 
 // initializer function
-void initialize_points_circle(vector<point2d>& pts); 
-void initialize_points_horizontal_line(vector<point2d>&pts);
-void initialize_points_random(vector<point2d>&pts) ;
-void initialize_points_cross(vector<point2d>&pts) ;
+void initialize_points_circle(vector<point2d>& pts, int n); 
+void initialize_points_horizontal_line(vector<point2d>&pts, int n);
+void initialize_points_random(vector<point2d>&pts, int n) ;
+void initialize_points_cross(vector<point2d>&pts, int n) ;
 
 //you'll add more 
 
@@ -127,40 +127,44 @@ void initialize_points_cross(vector<point2d>&pts) ;
 
 
 
+
+/* ****************************** */
 /* Initializes pts with n points on a circle.  The points are in the
    range (0,0) to (WINSIZE,WINSIZE).
 */ 
-void initialize_points_circle(vector<point2d>& pts) {
+void initialize_points_circle(vector<point2d>& pts, int n) {
 
   printf("\ninitialize points circle\n"); 
   //clear the vector just to be safe 
   pts.clear(); 
 
   double  step = 2* M_PI/n; 
-  int rad = 100; 
+  int radius = 100; 
 
-  int i; 
   point2d p; 
-  for (i=0; i<n; i++) {
-    p.x = WINDOWSIZE/2+ rad*cos(i*step); 
-    p.y = WINDOWSIZE/2+ rad*sin(i*step); 
+  for (int i=0; i<n; i++) {
+    p.x = WINDOWSIZE/2+ radius*cos(i*step); 
+    p.y = WINDOWSIZE/2+ radius*sin(i*step); 
     pts.push_back(p); 
   }
 }
 
 
+
+
+
+/* ****************************** */
 /* Initializes pts with n points on a line.  The points are in the
    range (0,0) to (WINSIZE,WINSIZE).
 */ 
-void initialize_points_horizontal_line(vector<point2d>& pts) {
+void initialize_points_horizontal_line(vector<point2d>& pts, int n) {
 
   printf("\ninitialize points line\n"); 
   //clear the vector just to be safe 
   pts.clear(); 
   
-  int i; 
   point2d p; 
-  for (i=0; i<n; i++) {
+  for (int i=0; i<n; i++) {
     p.x = (int)(.3*WINDOWSIZE)/2 + random() % ((int)(.7*WINDOWSIZE)); 
     p.y =  WINDOWSIZE/2; 
     pts.push_back(p); 
@@ -169,18 +173,19 @@ void initialize_points_horizontal_line(vector<point2d>& pts) {
 
 
 
+
+/* ****************************** */
 /* Initializes pts with n random points.  The points are in the
    range (0,0) to (WINSIZE,WINSIZE).
 */ 
-void initialize_points_random(vector<point2d>& pts) {
+void initialize_points_random(vector<point2d>& pts, int n) {
 
    printf("\ninitialize points random\n"); 
   //clear the vector just to be safe 
   pts.clear(); 
 
-  int i; 
   point2d p; 
-  for (i=0; i<n; i++) {
+  for (int i=0; i<n; i++) {
     p.x = (int)(.3*WINDOWSIZE)/2 + random() % ((int)(.7*WINDOWSIZE)); 
     p.y =  (int)(.3*WINDOWSIZE)/2 + random() % ((int)(.7*WINDOWSIZE));
     pts.push_back(p); 
@@ -188,18 +193,20 @@ void initialize_points_random(vector<point2d>& pts) {
 }
 
 
+
+
+/* ****************************** */
 /* Initializes pts with n points on a cross-like shape.  The points are
    in the range (0,0) to (WINSIZE,WINSIZE).
 */ 
-void initialize_points_cross(vector<point2d>& pts) {
+void initialize_points_cross(vector<point2d>& pts, int n) {
   
   printf("\ninitialize points cross\n"); 
   //clear the vector just to be safe 
   pts.clear(); 
   
-  int i; 
   point2d p; 
-  for (i=0; i<n; i++) {
+  for (int i=0; i<n; i++) {
     if (i%2 == 0) {
       
       p.x = (int)(.3*WINDOWSIZE)/2 + random() % ((int)(.7*WINDOWSIZE)); 
@@ -226,13 +233,11 @@ void initialize_points_cross(vector<point2d>& pts) {
 /* print the vector of points */
 void print_vector(const char* label, vector<point2d> points) {
   
-  int i; 
-  printf("%s: ", label);
-  for (i=0; i< points.size(); i++) {
+  printf("%s ", label);
+  for (int i=0; i< points.size(); i++) {
     printf("[%3d,%3d] ", points[i].x, points[i].y);
   }
   printf("\n");
-  fflush(stdout);  //weird sync happens when using gl thread
 }
 
 
@@ -247,12 +252,12 @@ int main(int argc, char** argv) {
     printf("usage: viewPoints <nbPoints>\n");
     exit(1); 
   }
-  n = atoi(argv[1]); 
-  printf("you entered n=%d\n", n);
-  assert(n >0); 
+  NPOINTS = atoi(argv[1]); 
+  printf("you entered n=%d\n", NPOINTS);
+  assert(NPOINTS >0); 
 
   //initialize the points 
-  initialize_points_cross(points);
+  initialize_points_cross(points, NPOINTS);
   //print_vector("points:", points);
 
   //compute the convex hull and store it in global variable "hull"
@@ -339,8 +344,7 @@ void draw_points(vector<point2d> points){
   //set drawing color 
   glColor3fv(yellow);   
   
-  int i;
-  for (i=0; i<n; i++) {
+  for (int i=0; i< points.size(); i++) {
     //draw a small square centered at (points[i].x, points[i].y)
     glBegin(GL_POLYGON);
     glVertex2f(points[i].x -R,points[i].y-R);
@@ -399,16 +403,16 @@ void keypress(unsigned char key, int x, int y) {
     POINT_INIT_MODE = (POINT_INIT_MODE+1) % NB_INIT_CHOICES; 
     switch (POINT_INIT_MODE) {
     case 0: 
-      initialize_points_circle(points); 
+      initialize_points_circle(points, NPOINTS); 
       break; 
     case 1: 
-      initialize_points_cross(points); 
+      initialize_points_cross(points, NPOINTS); 
       break; 
     case 2: 
-      initialize_points_horizontal_line(points); 
+      initialize_points_horizontal_line(points, NPOINTS); 
       break; 
     case 3: 
-      initialize_points_random(points); 
+      initialize_points_random(points, NPOINTS); 
       break; 
     } //switch 
     //note: we change global array points, so we must recompute the hull
