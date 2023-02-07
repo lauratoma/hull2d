@@ -5,5 +5,5 @@
 
 Should compile as is.
 
-Fill in the graham_scan function and create some initializers. 
+To do: Fill in the graham_scan function and create some initializers. 
  
