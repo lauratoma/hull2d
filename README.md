@@ -1,4 +1,9 @@
 # hull2d-startup
 
 
-Should compile as is. 
+2d convex hull startup code.  
+
+Should compile as is.
+
+Fill in the graham_scan function and create some initializers. 
+ 
