@@ -28,15 +28,15 @@ endif
 CC = g++ -O3 -Wall $(INCLUDEPATH)
 
 
-PROGS = viewPoints
+PROGS = hull2d
 
 default: $(PROGS)
 
-viewPoints: viewPoints.o geom.o rtimer.o
-	$(CC) -o $@ viewPoints.o geom.o rtimer.o $(LDFLAGS)
+hull2d: viewhull.o geom.o rtimer.o
+	$(CC) -o $@ viewhull.o geom.o rtimer.o $(LDFLAGS)
 
-viewPoints.o: viewPoints.cpp  geom.h rtimer.h
-	$(CC) -c $(CFLAGS)   viewPoints.cpp  -o $@
+viewhull.o: viewhull.cpp  geom.h rtimer.h
+	$(CC) -c $(CFLAGS)   viewhull.cpp  -o $@
 
 geom.o: geom.cpp geom.h 
 	$(CC) -c $(CFLAGS)  geom.cpp -o $@

@@ -43,14 +43,14 @@ int left_on(point2d a, point2d b, point2d c) {
 
 
 
-// compute the convex hull 
+// compute the convex hull of pts, and store the points on the hull in hull
 void graham_scan(vector<point2d>& pts, vector<point2d>& hull ) {
 
   printf("hull2d (graham scan): start\n"); 
-  hull.clear(); //should be empty, but cleara it to be safe
+  hull.clear(); //should be empty, but clear it to be safe
 
-  //just for fun: at the moment the hull is the bounding box of pts!
-  //erase this and insert your code instead
+  //just for fun: at the moment we set the hull as the bounding box of
+  //pts.  erase this and insert your code instead
   int x1, x2, y1, y2;
   if (pts.size() > 0) {
     x1 = x2 = pts[0].x;

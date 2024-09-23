@@ -1,8 +1,8 @@
 /* viewpoints.cpp, Laura Toma
    
-   What it does: Draws a set of points in the default 2D projection.
-   Includes a tentative function for printing and drawing a list of
-   points (assumed to be a convex hull).
+   What it does: Draws a set of points in the default 2D ortho
+   projection.  Includes a tentative function for printing and drawing
+   a list of points (assumed to be a convex hull).
    
    This code is provided as a startup for your 2d hull.  Change it as
    needed to work with your project.
@@ -71,7 +71,7 @@ int NPOINTS;
 vector<point2d>  points;
 
 //the convex hull 
-//needs to be global in order to be rendered
+//note: needs to be global in order to be rendered
 vector<point2d>  hull; 
 
 
@@ -81,7 +81,7 @@ const int WINDOWSIZE = 500;
 
 /* currently there are 4 different ways to initialize points.  The
    user can cycle through them by pressing 'i'. Check out the display()
-   function to see how that's implemented.
+   function.
 */
 int NB_INIT_CHOICES = 4; 
 int  POINT_INIT_MODE = 0; //the first inititalizer
@@ -98,8 +98,7 @@ void print_vector(const char* label, vector<point2d> p);
 
 
 
-/* render the array of points stored in global variable points.
-   Each point is drawn as a small square.  */
+/* render the points. Each point is drawn as a small square.  */
 void draw_points(vector<point2d> pts); 
 
 /* Render the hull; the points on the hull are expected to be in
@@ -130,7 +129,7 @@ void initialize_points_cross(vector<point2d>&pts, int n) ;
 
 /* ****************************** */
 /* Initializes pts with n points on two circles.  The points are in the
-   range (0,0) to (WINSIZE,WINSIZE).
+   range [0, WINSIZE] x [0, WINSIZE].
 */ 
 void initialize_points_circle(vector<point2d>& pts, int n) {
 
@@ -164,7 +163,7 @@ void initialize_points_circle(vector<point2d>& pts, int n) {
 
 /* ****************************** */
 /* Initializes pts with n points on a line.  The points are in the
-   range (0,0) to (WINSIZE,WINSIZE).
+   range [0, WINSIZE] x [0, WINSIZE].
 */ 
 void initialize_points_horizontal_line(vector<point2d>& pts, int n) {
 
@@ -185,7 +184,7 @@ void initialize_points_horizontal_line(vector<point2d>& pts, int n) {
 
 /* ****************************** */
 /* Initializes pts with n random points.  The points are in the
-   range (0,0) to (WINSIZE,WINSIZE).
+   range [0, WINSIZE] x [0, WINSIZE].
 */ 
 void initialize_points_random(vector<point2d>& pts, int n) {
 
@@ -308,8 +307,9 @@ int main(int argc, char** argv) {
 
 
 /* ****************************** */
-/* This is the main render function. We registered this function to be
-   called by GL to render the window. 
+/* This is the function that renders the window. We registered this
+   function as the "displayFunc". It will be called by GL everytime
+   the window needs to be rendered.
  */
 void display(void) {
 
@@ -323,8 +323,9 @@ void display(void) {
      the center. The camera is at (0,0,0) looking down negative
      z-axis.  
 
-     The points are in the range (0,0) to (WINSIZE,WINSIZE), so they
+     The points are in the range [0, WINSIZE] x [0, WINSIZE] so they
      need to be mapped to [-1,1]x [-1,1] */
+  
   //then scale the points to [0,2]x[0,2]
   glScalef(2.0/WINDOWSIZE, 2.0/WINDOWSIZE, 1.0);  
   //first translate the points to [-WINDOWSIZE/2, WINDOWSIZE/2]
@@ -369,7 +370,7 @@ void draw_points(vector<point2d> points){
 
 
 /* ****************************** */
-/* Draaaw the hull; the points on the hull are expected to be in
+/* Draw the hull; the points on the hull are expected to be in
    boundary order (either ccw or cw) or else it will look
    zig-zaagged. To render the hull we'll draw lines between
    consecutive points */
@@ -435,19 +436,5 @@ void keypress(unsigned char key, int x, int y) {
   } //switch (key)
 
 }//keypress
-
-
-
-/* Handler for window re-size event. Called back when the window first appears and
-   whenever the window is re-sized with its new width and height */
-void reshape(GLsizei width, GLsizei height) {  // GLsizei for non-negative integer
-     
-   // Set the viewport to cover the new window
-   glViewport(0, 0, width, height);
- 
-   glMatrixMode(GL_PROJECTION);  // To operate on the Projection matrix
-   glLoadIdentity();             // Reset
-   gluOrtho2D(0.0, (GLdouble) width, 0.0, (GLdouble) height); 
-}
 
 
